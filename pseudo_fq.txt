@@ -1,0 +1,34 @@
+# Visit https://en.wikipedia.org/wiki/Fair_queuing for more detailed information.
+
+Shared variables
+    const N             // Nb of queues 
+    queues[1..N]        // queues
+    lastVirFinish[1..N] // last virtual finish instant
+
+receive(packet)
+     queueNum := chooseQueue(packet)
+     queues[queueNum].enqueue(packet)
+     updateTime(packet, queueNum)
+
+updateTime(packet, queueNum)
+    // virStart is the virtual start of service
+    virStart := max(now(), lastVirFinish[queueNum])
+    packet.virFinish := packet.size + virStart
+    lastVirFinish[queueNum] := packet.virFinish
+
+send()
+     queueNum := selectQueue()
+     packet := queues[queueNum].dequeue()
+     return packet
+
+selectQueue()
+     it := 1
+     minVirFinish = {\displaystyle \infty }
+  
+     while it ≤ N do
+         queue := queues[it]
+         if not queue.empty and queue.head.virFinish < minVirFinish then
+             minVirFinish = queue.head.virFinish
+             queueNum := it 
+         it := it + 1
+     return queueNum
